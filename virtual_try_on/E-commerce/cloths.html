@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Dressing Room</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .ar-preview {
+            flex: 3;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ar-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #20B2AA;
+            color: white;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: #1a8e8a;
+        }
+
+        .wardrobe-section {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .category-tab {
+            padding: 0.5rem 1rem;
+            background: #f0f8ff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .category-tab.active {
+            background: #20B2AA;
+            color: white;
+        }
+
+        .clothes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .clothing-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .clothing-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .clothing-preview {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clothing-info {
+            padding: 0.5rem;
+        }
+
+        .clothing-name {
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .clothing-price {
+            color: #20B2AA;
+            font-weight: bold;
+        }
+
+        .ar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .fit-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .fit-btn {
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .fit-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .size-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        /* Loading animation */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #20B2AA;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ar-preview">
+            <div class="preview-container">
+                <div class="ar-overlay">
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                        <span>Initializing AR...</span>
+                    </div>
+                </div>
+                <div class="size-indicator">Size: M</div>
+                <div class="fit-controls">
+                    <button class="fit-btn">Size Up</button>
+                    <button class="fit-btn">Size Down</button>
+                    <button class="fit-btn">Reset Fit</button>
+                </div>
+            </div>
+            <div class="ar-controls">
+                <button class="control-btn">Take Picture</button>
+                <button class="control-btn">Record Video</button>
+                <button class="control-btn">Share</button>
+            </div>
+        </div>
+
+        <div class="wardrobe-section">
+            <div class="category-tabs">
+                <button class="category-tab active">All</button>
+                <button class="category-tab">Shirts</button>
+                <button class="category-tab">Pants</button>
+                <button class="category-tab">Dresses</button>
+                <button class="category-tab">Outfits</button>
+            </div>
+
+            <div class="clothes-grid">
+                <!-- Example clothing items -->
+                <div class="clothing-item">
+                    <div class="clothing-preview">
+                        <span>Casual Shirt</span>
+                    </div>
+                    <div class="clothing-info">
+                        <h3 class="clothing-name">White Casual Shirt</h3>
+                        <p class="clothing-price">$29.99</p>
+                    </div>
+                </div>
+
+                <div class="clothing-item">
+                    <div class="clothing-preview">
+                        <span>Blue Jeans</span>
+                    </div>
+                    <div class="clothing-info">
+                        <h3 class="clothing-name">Classic Blue Jeans</h3>
+                        <p class="clothing-price">$49.99</p>
+                    </div>
+                </div>
+
+                <div class="clothing-item">
+                    <div class="clothing-preview">
+                        <span>Summer Dress</span>
+                    </div>
+                    <div class="clothing-info">
+                        <h3 class="clothing-name">Floral Summer Dress</h3>
+                        <p class="clothing-price">$39.99</p>
+                    </div>
+                </div>
+
+                <div class="clothing-item">
+                    <div class="clothing-preview">
+                        <span>Sport Outfit</span>
+                    </div>
+                    <div class="clothing-info">
+                        <h3 class="clothing-name">Athletic Set</h3>
+                        <p class="clothing-price">$79.99</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle category tabs
+        const tabs = document.querySelectorAll('.category-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Simulate loading state
+        setTimeout(() => {
+            document.querySelector('.loading-overlay').style.display = 'none';
+        }, 3000);
+
+        // Size controls
+        const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+        let currentSizeIndex = 2;
+        
+        document.querySelectorAll('.fit-btn').forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                if (index === 0 && currentSizeIndex < sizes.length - 1) {
+                    currentSizeIndex++;
+                } else if (index === 1 && currentSizeIndex > 0) {
+                    currentSizeIndex--;
+                } else if (index === 2) {
+                    currentSizeIndex = 2;
+                }
+                document.querySelector('.size-indicator').textContent = `Size: ${sizes[currentSizeIndex]}`;
+            });
+        });
+    </script>
+</body>
+</html>
