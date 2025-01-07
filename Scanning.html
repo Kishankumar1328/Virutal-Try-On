@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Scanning Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #20B2AA;
+        }
+
+        .scan-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .camera-section {
+            flex: 2;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .camera-preview {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .guide-section {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .progress-step.active {
+            background: #20B2AA;
+        }
+
+        .progress-line {
+            flex: 1;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 0.5rem;
+        }
+
+        .instruction-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .instruction-card.active {
+            border: 2px solid #20B2AA;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .start-btn {
+            background-color: #20B2AA;
+            color: white;
+        }
+
+        .start-btn:hover {
+            background-color: #1a8e8a;
+        }
+
+        .cancel-btn {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+
+        .scanning-pointer {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #20B2AA;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .guide-arrow {
+            position: absolute;
+            color: #20B2AA;
+            font-size: 2rem;
+            animation: move 2s infinite;
+        }
+
+        @keyframes move {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(20px);
+            }
+        }
+
+        .scan-status {
+            margin-top: 1rem;
+            text-align: center;
+            color: #20B2AA;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Body Scanning</h1>
+            <p>Follow the instructions to create your 3D body model</p>
+        </div>
+
+        <div class="scan-container">
+            <div class="camera-section">
+                <div class="camera-preview">
+                    <div class="camera-overlay">
+                        <div class="scanning-pointer"></div>
+                        <div class="guide-arrow">→</div>
+                    </div>
+                </div>
+                <div class="scan-status">
+                    Scanning in progress: 45% complete
+                </div>
+                <div class="controls">
+                    <button class="control-btn start-btn" onclick="toggleScanning()">Start Scanning</button>
+                    <button class="control-btn cancel-btn">Cancel</button>
+                </div>
+            </div>
+
+            <div class="guide-section">
+                <h2>Scanning Guide</h2>
+                <div class="progress-indicator">
+                    <div class="progress-step active">1</div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step">2</div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step">3</div>
+                </div>
+
+                <div class="instruction-card active">
+                    <h3>Step 1: Preparation</h3>
+                    <p>Stand 6 feet away from the camera in a well-lit area</p>
+                </div>
+
+                <div class="instruction-card">
+                    <h3>Step 2: Front View</h3>
+                    <p>Stand straight with arms slightly raised</p>
+                </div>
+
+                <div class="instruction-card">
+                    <h3>Step 3: Rotation</h3>
+                    <p>Slowly rotate 360° following the on-screen arrow</p>
+                </div>
+
+                <div class="instruction-card">
+                    <h3>Step 4: Final Position</h3>
+                    <p>Return to the front-facing position</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isScanning = false;
+
+        function toggleScanning() {
+            const button = document.querySelector('.start-btn');
+            if (!isScanning) {
+                button.textContent = 'Stop Scanning';
+                button.style.backgroundColor = '#dc3545';
+                // Here you would typically start the camera and scanning process
+            } else {
+                button.textContent = 'Start Scanning';
+                button.style.backgroundColor = '#20B2AA';
+                // Here you would typically stop the scanning process
+            }
+            isScanning = !isScanning;
+        }
+
+        // Simulate progress updates
+        let currentStep = 1;
+        function updateProgress() {
+            const steps = document.querySelectorAll('.progress-step');
+            const cards = document.querySelectorAll('.instruction-card');
+            
+            steps.forEach((step, index) => {
+                if (index + 1 <= currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+
+            cards.forEach((card, index) => {
+                if (index + 1 === currentStep) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        // Simulate step progression
+        setInterval(() => {
+            if (isScanning) {
+                currentStep = (currentStep % 4) + 1;
+                updateProgress();
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
