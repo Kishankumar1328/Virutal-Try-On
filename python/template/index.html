@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Try-On</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Virtual Try-On</h1>
+        <div class="video-container">
+            <img id="video-feed" src="" alt="Video Feed">
+        </div>
+        <div class="controls">
+            <button id="prev-btn">Previous</button>
+            <button id="next-btn">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        const videoFeed = document.getElementById("video-feed");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+
+        // Request frames from server
+        setInterval(() => {
+            socket.emit("request_frame");
+        }, 100);
+
+        // Receive frames from server
+        socket.on("frame", (data) => {
+            videoFeed.src = `data:image/jpeg;base64,${data.image}`;
+        });
+
+        // Change shirt
+        prevBtn.addEventListener("click", () => {
+            socket.emit("change_shirt", { direction: "prev" });
+        });
+
+        nextBtn.addEventListener("click", () => {
+            socket.emit("change_shirt", { direction: "next" });
+        });
+    </script>
+</body>
+</html>
+
